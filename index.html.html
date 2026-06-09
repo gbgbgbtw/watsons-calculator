@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watsons Pricing Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#0F6E56;--green-mid:#1D9E75;--green-light:#9FE1CB;--green-bg:#E1F5EE;
+  --ink:#1a1a18;--ink2:#444441;--ink3:#888780;--ink4:#b4b2a9;
+  --surface:#ffffff;--surface2:#f7f6f2;--surface3:#f1efe8;
+  --amber:#BA7517;--amber-bg:#FAEEDA;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --good-bg:#C6EFCE;--good-txt:#276221;
+  --warn-bg:#FFEB9C;--warn-txt:#7D4F0A;
+  --bad-bg:#FFC7CE;--bad-txt:#9C0006;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--surface3);
+  color:var(--ink);
+  min-height:100vh;
+  padding:2rem 1rem;
+}
+.page{max-width:900px;margin:0 auto;}
+
+/* ── header */
+header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:2rem;
+  padding-bottom:1.5rem;
+  border-bottom:1.5px solid var(--green-light);
+}
+.logo{
+  width:44px;height:44px;border-radius:10px;
+  background:var(--green);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+h1{font-size:1.35rem;font-weight:600;color:var(--green);letter-spacing:-.02em;}
+h1 span{display:block;font-size:.8rem;font-weight:400;color:var(--ink3);letter-spacing:0;margin-top:1px}
+
+/* ── cards */
+.card{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  padding:1.5rem;
+  margin-bottom:1.25rem;
+}
+.card-title{
+  font-size:.7rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3);
+  margin-bottom:1rem;
+  display:flex;align-items:center;gap:6px;
+}
+.card-title::before{
+  content:'';display:block;width:3px;height:14px;
+  background:var(--green-mid);border-radius:2px;
+}
+
+/* ── inputs */
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.field label{
+  display:block;font-size:.78rem;font-weight:500;
+  color:var(--ink2);margin-bottom:.4rem;
+}
+.input-wrap{position:relative;}
+.input-wrap span{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:.85rem;color:var(--ink3);font-family:'DM Mono',monospace;
+  pointer-events:none;
+}
+input[type=number]{
+  width:100%;padding:.65rem .75rem .65rem 36px;
+  font-size:1.1rem;font-weight:500;font-family:'DM Mono',monospace;
+  color:var(--green);
+  border:1.5px solid var(--green-light);
+  border-radius:var(--radius);background:var(--green-bg);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  -moz-appearance:textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]:focus{
+  border-color:var(--green-mid);
+  box-shadow:0 0 0 3px rgba(29,158,117,.15);
+}
+
+/* ── base summary pills */
+.pills{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-top:1.25rem;}
+.pill{
+  background:var(--surface2);border-radius:var(--radius);
+  padding:.85rem 1rem;border:1px solid rgba(0,0,0,.04);
+}
+.pill-label{font-size:.68rem;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
+.pill-val{font-size:1.15rem;font-weight:600;font-family:'DM Mono',monospace;color:var(--ink)}
+.pill-val.good{color:var(--green)}
+.pill-val.warn{color:var(--amber)}
+.pill-val.bad{color:var(--red)}
+
+/* ── table */
+.table-scroll{overflow-x:auto;margin:0 -1.5rem;padding:0 1.5rem;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;}
+thead th{
+  padding:.55rem .75rem;
+  font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--surface);background:var(--green);
+  text-align:right;white-space:nowrap;
+}
+thead th:first-child{text-align:left;border-radius:8px 0 0 0;}
+thead th:last-child{border-radius:0 8px 0 0;}
+tbody tr{border-bottom:1px solid var(--surface3);transition:background .1s;}
+tbody tr:hover{background:var(--green-bg);}
+tbody tr.hi{background:var(--amber-bg);}
+tbody tr.hi:hover{background:#f5e0c4;}
+tbody td{
+  padding:.6rem .75rem;
+  text-align:right;font-family:'DM Mono',monospace;font-size:.82rem;
+  color:var(--ink2);
+}
+tbody td:first-child{
+  text-align:left;font-family:'DM Sans',sans-serif;
+  font-weight:600;color:var(--ink);
+}
+td.promo-price{color:var(--green);font-weight:600;}
+td.net{color:var(--green);font-weight:600;}
+td.dim{color:var(--ink4);}
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:.72rem;font-weight:600;font-family:'DM Sans',sans-serif;
+  letter-spacing:.02em;
+}
+.badge.good{background:var(--good-bg);color:var(--good-txt);}
+.badge.warn{background:var(--warn-bg);color:var(--warn-txt);}
+.badge.bad{background:var(--bad-bg);color:var(--bad-txt);}
+.gp-good{color:var(--good-txt);font-weight:700;}
+.gp-warn{color:var(--warn-txt);font-weight:700;}
+.gp-bad{color:var(--bad-txt);font-weight:700;}
+
+/* ── legend */
+.legend{
+  display:flex;gap:1rem;flex-wrap:wrap;
+  font-size:.75rem;color:var(--ink3);
+  padding-top:.75rem;border-top:1px solid var(--surface3);
+  margin-top:.75rem;
+}
+.leg{display:flex;align-items:center;gap:5px;}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dot.good{background:var(--good-txt);}
+.dot.warn{background:var(--amber);}
+.dot.bad{background:var(--red);}
+
+/* ── note box */
+.note{
+  background:var(--surface2);border-left:3px solid var(--green-mid);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:.7rem 1rem;font-size:.78rem;color:var(--ink3);
+  margin-top:.75rem;line-height:1.6;
+}
+.note strong{color:var(--ink2);}
+
+footer{text-align:center;font-size:.72rem;color:var(--ink4);margin-top:2rem;padding-top:1rem;}
+
+@media(max-width:560px){
+  .input-grid{grid-template-columns:1fr;}
+  .pills{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <h1>Watsons Pricing Calculator
+      <span>输入 RSP 和 Gross Cost，即时查看所有折扣档位的 Margin 和 GP</span>
+    </h1>
+  </header>
+
+  <!-- INPUTS -->
+  <div class="card">
+    <div class="card-title">产品定价输入</div>
+    <div class="input-grid">
+      <div class="field">
+        <label>RSP — Retail Selling Price</label>
+        <div class="input-wrap">
+          <span>RM</span>
+          <input type="number" id="rsp" value="89.90" step="0.10" min="0" oninput="calc()">
+        </div>
+      </div>
+      <div class="field">
+        <label>Gross Cost — 你的成本</label>
+        <div class="input-wrap">
+          <span>RM</span>
+          <input type="number" id="gc" value="20.36" step="0.10" min="0" oninput="calc()">
+        </div>
+      </div>
+    </div>
+
+    <div class="pills" id="pills"></div>
+  </div>
+
+  <!-- PROMO TABLE -->
+  <div class="card">
+    <div class="card-title">折扣场景总览 (10% – 40%)</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>折扣</th>
+            <th>Promo Price</th>
+            <th>Watsons Cost</th>
+            <th>Biz Dev 2%</th>
+            <th>Cross Dock 3.6%</th>
+            <th>Data Share 1.5%</th>
+            <th>A&amp;P 4%</th>
+            <th>Net (到手价)</th>
+            <th>Margin</th>
+            <th>GP %</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>Promo Price</strong> = RSP × (1 − 折扣)，例如 RSP 100 打八折 → RM 80 &nbsp;·&nbsp;
+      折扣 ≤30% 乘以 <strong>0.68</strong>，折扣 &gt;30% 乘以 <strong>0.70</strong>
+    </div>
+    <div class="legend">
+      <span class="leg"><span class="dot good"></span>GP ≥ 20% — Good</span>
+      <span class="leg"><span class="dot warn"></span>GP 10–19% — Tight</span>
+      <span class="leg"><span class="dot bad"></span>GP &lt; 10% — Loss</span>
+    </div>
+  </div>
+
+  <footer>Watsons Pricing Calculator &nbsp;·&nbsp; 仅供内部参考，请勿对外发布</footer>
+</div>
+
+<script>
+const fmt = v => 'RM ' + Math.abs(v).toFixed(2);
+const pct = v => (v*100).toFixed(1) + '%';
+
+function gpClass(v){ return v >= 0.20 ? 'good' : v >= 0.10 ? 'warn' : 'bad'; }
+function badgeLabel(v){ return v >= 0.20 ? '✔ Good' : v >= 0.10 ? '⚠ Tight' : '✘ Loss'; }
+
+function calc(){
+  const rsp = parseFloat(document.getElementById('rsp').value)||0;
+  const gc  = parseFloat(document.getElementById('gc').value)||0;
+
+  // Base (no promo)
+  const cost = rsp * 0.65;
+  const bd   = cost * 0.02;
+  const cd   = cost * 0.036;
+  const ds   = cost * 0.015;
+  const ap   = cost * 0.04;
+  const net  = cost - bd - cd - ds - ap;
+  const margin = net - gc;
+  const gp   = net > 0 ? margin/net : 0;
+
+  const pills = document.getElementById('pills');
+  pills.innerHTML = [
+    ['Watsons Cost', fmt(cost), ''],
+    ['Net (到手价)', fmt(net), gpClass(gp)],
+    ['Margin', (margin<0?'-':'')+fmt(margin), gpClass(gp)],
+    ['GP %', pct(gp), gpClass(gp)],
+  ].map(([l,v,cls])=>
+    `<div class="pill">
+       <div class="pill-label">${l}</div>
+       <div class="pill-val ${cls}">${v}</div>
+     </div>`
+  ).join('');
+
+  // Promo rows
+  const discounts = [0.10,0.15,0.20,0.25,0.30,0.35,0.40];
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = discounts.map(d => {
+    const mult  = d <= 0.30 ? 0.68 : 0.70;
+    const pp    = rsp * (1-d);           // promo price
+    const wc    = pp * mult;             // watsons cost changes with promo
+    // BD/CD/DS/AP always fixed based on base cost (RSP*0.65), not promo cost
+    const bd2   = cost * 0.02;
+    const cd2   = cost * 0.036;
+    const ds2   = cost * 0.015;
+    const ap2   = cost * 0.04;
+    const net2  = wc - bd2 - cd2 - ds2 - ap2;
+    const m2    = net2 - gc;
+    const gp2   = net2 > 0 ? m2/net2 : 0;
+    const hi    = d >= 0.30 ? 'hi' : '';
+    const gc2   = gpClass(gp2);
+    return `<tr class="${hi}">
+      <td>${(d*100).toFixed(0)}%</td>
+      <td class="promo-price">${fmt(pp)}</td>
+      <td class="dim">${fmt(wc)}</td>
+      <td class="dim">${fmt(bd2)}</td>
+      <td class="dim">${fmt(cd2)}</td>
+      <td class="dim">${fmt(ds2)}</td>
+      <td class="dim">${fmt(ap2)}</td>
+      <td class="net">${fmt(net2)}</td>
+      <td class="net">${(m2<0?'-':'')+fmt(m2)}</td>
+      <td class="gp-${gc2}">${pct(gp2)}</td>
+      <td><span class="badge ${gc2}">${badgeLabel(gp2)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+calc();
+</script>
+</body>
+</html>
